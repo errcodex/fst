@@ -1,0 +1,3 @@
+[submodule "external/libutils"]
+	path = external/libutils
+	url = git@github.com:errcodex/libutils.git
