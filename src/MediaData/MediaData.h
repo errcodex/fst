@@ -6,6 +6,7 @@ class MediaData
 {
 public:
 	using Ptr = std::shared_ptr<MediaData>;
+	using ConstPtr = std::shared_ptr<const MediaData>;
 	enum class MEDIA_TYPE
 	{
 		VIDEO,

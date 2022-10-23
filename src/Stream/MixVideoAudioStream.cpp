@@ -2,15 +2,6 @@
 
 using namespace fst;
 
-void MixVideoAudioStream::Write(MediaData::Ptr framePtr)
-{
-	if (framePtr->GetType() == MediaData::MEDIA_TYPE::VIDEO)
-		VideoStream::Write(framePtr);
-	else
-		AudioStream::Write(framePtr);
-}
+void fst::MixVideoAudioStream::AddSource(Source::Ptr sourcePtr) {}
 
-MediaData::Ptr MixVideoAudioStream::Read()
-{
-	return MediaData::Ptr();
-}
+void fst::MixVideoAudioStream::AddSink(Sink::Ptr sinkPtr) {}

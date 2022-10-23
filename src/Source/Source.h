@@ -2,6 +2,7 @@
 
 #include <MediaData/MediaData.h>
 #include <memory>
+#include <functional>
 
 namespace fst {
 

@@ -1,13 +1,14 @@
 #pragma once
 
-#include "MediaData/MediaData.h"
+#include "Sink/Sink.h"
+#include "Source/Source.h"
 
 #include <list>
 #include <memory>
 
 namespace fst {
 
-class Stream
+class Stream 
 {
 public:
 	using Ptr = std::shared_ptr<Stream>;
@@ -15,8 +16,8 @@ public:
 	virtual ~Stream() = default;
 
 public:
-	virtual void Write(MediaData::Ptr framePtr) = 0;
-	virtual MediaData::Ptr Read() = 0;
+	virtual void AddSource(Source::Ptr sourcePtr) = 0;
+	virtual void AddSink(Sink::Ptr sinkPtr) = 0;
 
 protected:
 	Stream() = default;

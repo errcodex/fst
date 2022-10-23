@@ -2,7 +2,7 @@
 
 using namespace fst;
 
-VideoMediaData::Ptr fst::VideoMediaData::create()
+VideoMediaData::Ptr VideoMediaData::create()
 {
 	return VideoMediaData::Ptr(new VideoMediaData());
 }
@@ -12,10 +12,10 @@ size_t VideoMediaData::calc_video_size(VideoMediaData::PIXEL_FORMAT pixelFormat,
 	double sizeRatio = 1;
 	switch (pixelFormat)
 	{
-		case fst::VideoMediaData::PIXEL_FORMAT::YUV420P:
+		case VideoMediaData::PIXEL_FORMAT::YUV420P:
 			sizeRatio = 3.f / 2.f;
 			break;
-		case fst::VideoMediaData::PIXEL_FORMAT::RGB24:
+		case VideoMediaData::PIXEL_FORMAT::RGB24:
 			sizeRatio = 3.f;
 			break;
 		default:
@@ -48,6 +48,16 @@ size_t VideoMediaData::GetSize() const
 int64_t VideoMediaData::GetTimestemp() const
 {
 	return timestemp;
+}
+
+size_t fst::VideoMediaData::GetPts() const
+{
+	return pts;
+}
+
+void VideoMediaData::SetPts(size_t pts)
+{
+	this->pts = pts;
 }
 
 bool VideoMediaData::Fill(const std::shared_ptr<uint8_t[]> dataPtr, VideoMediaData::PIXEL_FORMAT pixelFormat, size_t width, size_t height, int64_t timestemp)

@@ -2,9 +2,6 @@
 
 using namespace fst;
 
-void AudioStream::Write(MediaData::Ptr framePtr) {}
+void fst::AudioStream::AddSource(Source::Ptr sourcePtr) {}
 
-MediaData::Ptr AudioStream::Read()
-{
-	return MediaData::Ptr();
-}
+void fst::AudioStream::AddSink(Sink::Ptr sinkPtr) {}

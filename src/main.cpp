@@ -12,6 +12,25 @@ using namespace fst;
 int main(int, char *[])
 {
 	Device::Ptr t = CameraDeviceWindowsImpl::create();
+	VideoStream::Ptr s = VideoStream::create();
+	std::shared_ptr<FileHelper> f = std::make_shared<FileHelper>();
+	f->init(1280, 720, 30);
+	assert(t->Start());
+
+	auto source = t->GetSource();
+	s->AddSource(source);
+	s->AddSink(f);
+	auto ts = libutils::Time::steady_ts();
+	s->Start(ts);
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	s->Stop();
+	
+	f->release();
+	assert(t->Stop());
+	return 0;
+
+	/*
+	Device::Ptr t = CameraDeviceWindowsImpl::create();
 	FileHelper f;
 	f.init(1280, 720, 30);
 	assert(t->Start());
@@ -37,4 +56,5 @@ int main(int, char *[])
 	assert(t->Stop());
 	auto timeUsed = libutils::Time::timing_ms(time);
 	return 0;
+	*/
 }

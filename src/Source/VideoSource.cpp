@@ -19,27 +19,14 @@ void VideoSource::SetPixelFormat(VideoMediaData::PIXEL_FORMAT pixelFormat)
 void VideoSource::Push(MediaData::Ptr mediaPtr)
 {
 	std::lock_guard<std::mutex> lck(mediaPoolRWMutex);
-	if (mediaPool.size() >= mediaPoolCacheSize)
-	{
-		mediaPool.pop_front();
-		printf("force pop\n");
-	}
-	mediaPool.push_back(mediaPtr);
+	mediaCache = mediaPtr;
 }
 
 MediaData::Ptr VideoSource::Pop()
 {
 	std::lock_guard<std::mutex> lck(mediaPoolRWMutex);
-	if (mediaPool.empty()) return nullptr;
 
-	VideoMediaData::Ptr tmp = nullptr;
-	do {
-		tmp = std::dynamic_pointer_cast<VideoMediaData>(mediaPool.front());
-		//if (1 < mediaPool.size())
-		mediaPool.pop_front();
-	} while (!mediaPool.empty() && tmp->GetTimestemp() < libutils::Time::steady_ts());
-
-	return tmp;
+	return mediaCache;
 }
 
 MediaData::Ptr VideoSource::Read()
@@ -57,7 +44,7 @@ size_t VideoSource::GetHeight() const
 	return height;
 }
 
-VideoMediaData::PIXEL_FORMAT fst::VideoSource::GetPixelFormat() const
+VideoMediaData::PIXEL_FORMAT VideoSource::GetPixelFormat() const
 {
 	return pixelFormat;
 }

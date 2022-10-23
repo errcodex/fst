@@ -13,11 +13,13 @@ public:
 	virtual ~AudioStream() = default;
 
 	// 通过 Stream 继承
-	virtual void Write(MediaData::Ptr framePtr) override;
-	virtual MediaData::Ptr Read() override;
+	virtual void AddSource(Source::Ptr sourcePtr) override;
+	virtual void AddSink(Sink::Ptr sinkPtr) override;
 
 protected:
 	AudioStream() = default;
+
+
 };
 
 }  // namespace fst

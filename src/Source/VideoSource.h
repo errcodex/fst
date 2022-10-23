@@ -41,8 +41,7 @@ private:
 	VideoMediaData::PIXEL_FORMAT pixelFormat = VideoMediaData::PIXEL_FORMAT::NONE;
 
 	std::mutex mediaPoolRWMutex;
-	size_t mediaPoolCacheSize = 10;
-	std::list<MediaData::Ptr> mediaPool;
+	MediaData::Ptr mediaCache;
 };
 
 }  // namespace fst

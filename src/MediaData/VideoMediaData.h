@@ -8,6 +8,7 @@ class VideoMediaData : public MediaData
 {
 public:
 	using Ptr = std::shared_ptr<VideoMediaData>;
+	using ConstPtr = std::shared_ptr<const VideoMediaData>;
 	enum class PIXEL_FORMAT
 	{
 		NONE,
@@ -26,6 +27,8 @@ public:
 	size_t GetHeight() const;
 	size_t GetSize() const;
 	int64_t GetTimestemp() const;
+	size_t GetPts() const;
+	void SetPts(size_t pts);
 
 	bool Fill(const std::shared_ptr<uint8_t[]> dataPtr, VideoMediaData::PIXEL_FORMAT pixelFormat, size_t width, size_t height, int64_t timestemp);
 
@@ -44,6 +47,7 @@ private:
 	size_t height = 0;
 	size_t size = 0;
 	int64_t timestemp = 0;
+	size_t pts = 0;
 };
 
 }  // namespace fst

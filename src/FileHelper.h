@@ -7,12 +7,29 @@ extern "C" {
 }
 #include "MediaData/MediaData.h"
 #include "MediaData/VideoMediaData.h"
+#include "Stream/VideoStream.h"
+#include "libutils/Time.h"
 
 using namespace fst;
 
-class FileHelper
+class FileHelper : public Sink
 {
 public:
+	bool Start(VideoStream::Ptr videoStreamPtr)
+	{
+		this->videoStreamPtr = videoStreamPtr;
+		return videoStreamPtr->Start(libutils::Time::steady_ts());
+	};
+	bool Stop()
+	{
+		return this->videoStreamPtr->Stop();
+	};
+	virtual bool Write(MediaData::ConstPtr mediaDataPtr) override
+	{
+		push(mediaDataPtr);
+		return true;
+	};
+
 	void init(size_t width, size_t height, size_t framerate)
 	{
 		if (!(avcodecContext = avcodec_alloc_context3(avcodec_find_encoder_by_name("libx264rgb")))) return;
@@ -47,17 +64,17 @@ public:
 		avframe->pts = 0;
 	};
 
-	void push(MediaData::Ptr mdPtr)
+	void push(MediaData::ConstPtr mdPtr)
 	{
 		if (mdPtr->GetType() != MediaData::MEDIA_TYPE::VIDEO) return;
-		auto videoData = std::dynamic_pointer_cast<VideoMediaData>(mdPtr);
+		auto videoData = std::dynamic_pointer_cast<const VideoMediaData>(mdPtr);
 
 		if (videoData->GetVideoType() != VideoMediaData::PIXEL_FORMAT::RGB24) return;
 
 		av_image_fill_arrays(avframe->data, avframe->linesize, videoData->GetData().get(), avcodecContext->pix_fmt, avframe->width, avframe->height, 1);
-		encode(avframe, avpacket);
+		avframe->pts = videoData->GetPts();
 
-		++avframe->pts;
+		encode(avframe, avpacket);
 	};
 
 	void release()
@@ -112,4 +129,6 @@ private:
 	AVFrame* avframe = nullptr;
 	AVPacket* avpacket = nullptr;
 	const char* path = "test.mp4";
+
+	VideoStream::Ptr videoStreamPtr;
 };
