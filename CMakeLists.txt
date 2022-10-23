@@ -16,3 +16,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE "external/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "src")
 target_link_directories(${PROJECT_NAME} PRIVATE "external/lib")
 target_link_libraries(${PROJECT_NAME} PRIVATE  "librtmpd.lib" libutils::libutils_all)
+
+find_package(FFMPEG REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${FFMPEG_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${FFMPEG_LIBRARIES})

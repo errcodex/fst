@@ -2,7 +2,7 @@
 
 using namespace fst;
 
-MediaData::TYPE AudioMediaData::GetType() const
+MediaData::MEDIA_TYPE AudioMediaData::GetType() const
 {
-	return MediaData::TYPE::AUDIO;
+	return MediaData::MEDIA_TYPE::AUDIO;
 }

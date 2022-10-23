@@ -16,7 +16,7 @@ public:
 	}
 
 	// 通过 MediaData 继承
-	virtual MediaData::TYPE GetType() const override;
+	virtual MediaData::MEDIA_TYPE GetType() const override;
 
 protected:
 	AudioMediaData() = default;

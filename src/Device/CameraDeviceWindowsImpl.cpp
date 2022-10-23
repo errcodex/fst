@@ -13,55 +13,35 @@ using namespace libutils;
 class VideoSourceCameraDeviceWindowsImpl : public VideoSource
 {
 public:
-	void Write(const uint8_t* framePtr, size_t width, size_t height)
+	bool PushVideoData(uint8_t* data, size_t size)
 	{
-		std::lock_guard<std::mutex> lck(mtx);
-
-		this->framePtr = std::shared_ptr<uint8_t[]>(new uint8_t[width * height * 3]);
-		this->width = width;
-		this->height = height;
-		memcpy(this->framePtr.get(), framePtr, width * height * 3);
+		return VideoSource::Wirte(data, size);
 	};
 
-	void Write(std::shared_ptr<uint8_t[]> framePtr, size_t width, size_t height)
+	void Init(VideoMediaData::PIXEL_FORMAT pixFmt, size_t width, size_t height)
 	{
-		std::lock_guard<std::mutex> lck(mtx);
-
-		this->framePtr = framePtr;
-		this->width = width;
-		this->height = height;
+		VideoSource::SetPixelFormat(pixFmt);
+		VideoSource::SetSize(width, height);
 	};
-
-	// 通过 VideoSource 继承
-	virtual MediaData::Ptr Read() override
-	{
-		std::lock_guard<std::mutex> lck(mtx);
-
-		auto p = VideoMediaData::create(VideoMediaData::TYPE::RGB24);
-		p->data = framePtr;
-		p->size = width * height;
-		return p;
-	}
-
-private:
-	std::mutex mtx;
-	std::shared_ptr<uint8_t[]> framePtr;
-	size_t width = 0;
-	size_t height = 0;
 };
 
 CameraDeviceWindowsImpl::CameraDeviceWindowsImpl() : Daemon(this)
 {
+	videoInput::setComMultiThreaded(true);
+	videoInput::setVerbose(true);
+
 	videoInputPtr = std::make_shared<videoInput>();
 	videoSourcePtr = std::make_shared<VideoSourceCameraDeviceWindowsImpl>();
+	videoInputPtr->setRequestedMediaSubType(VI_MEDIASUBTYPE_MJPG);
 
 	// TODO: 分散到具体功能函数中
 	auto list = videoInputPtr->getDeviceList();
 	deviceId = 1;									 // 1,3 to local test
 	videoInputPtr->setIdealFramerate(deviceId, 60);	 // fps
-	videoInputPtr->setVerbose(true);
 	width = 1280;
 	height = 720;
+	
+	std::dynamic_pointer_cast<VideoSourceCameraDeviceWindowsImpl>(videoSourcePtr)->Init(VideoMediaData::PIXEL_FORMAT::RGB24, width, height);
 }
 
 bool CameraDeviceWindowsImpl::Start()
@@ -76,9 +56,9 @@ bool CameraDeviceWindowsImpl::Start()
 
 bool CameraDeviceWindowsImpl::Stop()
 {
-	videoInputPtr->stopDevice(deviceId);
-
 	return Daemon::Stop();
+
+	videoInputPtr->stopDevice(deviceId);
 }
 
 Source::Ptr CameraDeviceWindowsImpl::GetSource()
@@ -88,6 +68,8 @@ Source::Ptr CameraDeviceWindowsImpl::GetSource()
 
 void CameraDeviceWindowsImpl::Job()
 {
+	auto frameSize = videoInputPtr->getSize(deviceId);
+	uint8_t* frame = nullptr;
 	while (Daemon::IsRunnable())
 	{
 		if (!videoInputPtr->isFrameNew(deviceId))
@@ -95,15 +77,12 @@ void CameraDeviceWindowsImpl::Job()
 			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			continue;
 		}
-
-		auto framePtr = std::shared_ptr<uint8_t[]>(new uint8_t[width * height * 3]);
-		if (!videoInputPtr->getPixels(deviceId, framePtr.get(), true, true))
+		if (!(frame = videoInputPtr->getPixels(deviceId, true, true)))
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			continue;
 		}
-
-		std::dynamic_pointer_cast<VideoSourceCameraDeviceWindowsImpl>(videoSourcePtr)->Write(framePtr, width, height);
+		std::dynamic_pointer_cast<VideoSourceCameraDeviceWindowsImpl>(videoSourcePtr)->PushVideoData(frame, frameSize);
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }

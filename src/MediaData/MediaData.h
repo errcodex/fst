@@ -6,7 +6,7 @@ class MediaData
 {
 public:
 	using Ptr = std::shared_ptr<MediaData>;
-	enum class TYPE
+	enum class MEDIA_TYPE
 	{
 		VIDEO,
 		AUDIO
@@ -14,7 +14,7 @@ public:
 
 public:
 	virtual ~MediaData() = default;
-	virtual MediaData::TYPE GetType() const = 0;
+	virtual MediaData::MEDIA_TYPE GetType() const = 0;
 
 protected:
 	MediaData() = default;
